@@ -1,5 +1,5 @@
 const gameboard = (function (usernameX="Player X", usernameO="Player O", dim=3) {
-
+    // userid peaks võtma lahku X ja Y osast, et peale igat raundi pooltevahetus teha
     const board = (function () {
         const res = [];
         for (let i = 0; i < dim; i++) {
@@ -19,7 +19,9 @@ const gameboard = (function (usernameX="Player X", usernameO="Player O", dim=3) 
     const setTileX = setTileTemplate('X');
     const setTileO = setTileTemplate('O');
 
-    const getTile = (x, y) => {return board[y][x] = x;}
+    const getTile = (x, y) => {return board[y][x];}
+
+    let gameOver = false;
 
     let totalMoves = 0;
 
@@ -52,6 +54,7 @@ const gameboard = (function (usernameX="Player X", usernameO="Player O", dim=3) 
 
     const resetBoard = () => {
         totalMoves = 0;
+        gameOver = false;
         for (let i = 0; i < dim; ++i) {
             for (let j = 0; j < dim; ++j) {
                 board[i][j] = "";
@@ -63,6 +66,9 @@ const gameboard = (function (usernameX="Player X", usernameO="Player O", dim=3) 
         let bool = true;
         for (let i = 0; i < dim; ++i) {
             bool = true;
+            if (board[i][2] === board[i][0] && board[i][1] === board[i][0]) {
+                return board[i][0];
+            }
             for (let j = 1; j < dim; ++j) {
                 if (board[j][i] !== board[0][i]) bool = false;
             } if (bool) return board[0][i];
@@ -73,30 +79,69 @@ const gameboard = (function (usernameX="Player X", usernameO="Player O", dim=3) 
     };
 
     const makeMoveX = function (x, y) {
-        // if (totalMoves) SIIA VAJA % 2 JÄRGI TINGIMUST
+        if (gameOver) {
+            console.log("Error: game is over! Start a new game.");
+            return;
+        }
+        if (totalMoves % 2 === 1) {
+            console.log("Error: other player's turn!");
+            return;
+        }
+        if (getTile(x, y) !== "") {
+            console.log("Error: choose another tile.");
+            return;
+        }
         if (totalMoves < 9) {
             totalMoves++;
             setTileX(x, y);
             if (determineWinner()) {
                 increaseWinCountX();
+                gameOver = true;
                 return "X";
+            } if (totalMoves === 9) {
+                gameOver = true;
+                return "draw";
             }
-        }
+        } else console.log("Error: can't make a move, board is full");
     }
 
     const makeMoveO = function (x, y) {
-        if (totalMoves++ < 9) {
+        if (gameOver) {
+            console.log("Error: game is over! Start a new game.");
+            return;
+        }
+        if (totalMoves % 2 === 0) {
+            console.log("Error: other player's turn!");
+            return;
+        }
+        if (getTile(x, y) !== "") {
+            console.log("Error: choose another tile.");
+            return;
+        }
+        if (totalMoves < 9) {
+            totalMoves++;
             setTileO(x, y);
             if (determineWinner()) {
                 increaseWinCountO();
+                gameOver = true;
                 return "O";
-            } if (totalMoves === 9) return "draw";
-        } console.log("Error: can't make a move, board is full");
+            } if (totalMoves === 9) {
+                gameOver = true;
+                return "draw";
+            }
+        } else console.log("Error: can't make a move, board is full");
+    }
+
+    const makeMove = function (x, y) {
+        if (totalMoves % 2 === 0) makeMoveX(x, y);
+        else makeMoveO(x, y);
     }
 
     const logBoard = () => {console.log(board);}
 
     return {getMoves, getTile, getWinCountX, getWinCountO, getNameX, getNameO,
-    setNameX, setNameO, resetBoard, determineWinner, makeMoveX, makeMoveO, logBoard,
-    increaseWinCountX, increaseWinCountO, decreaseWinCountX, decreaseWinCountO, setTileX, setTileO}; // this row not necessary in endproduct
+    setNameX, setNameO, resetBoard, determineWinner, makeMove, logBoard,
+    increaseWinCountX, increaseWinCountO, decreaseWinCountX, decreaseWinCountO, setTileX, setTileO, makeMoveX, makeMoveO};
+    // last row not necessary in end product
 })()
+
