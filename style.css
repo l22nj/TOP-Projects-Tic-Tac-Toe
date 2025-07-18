@@ -1,0 +1,29 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.winner-text {
+    text-align: center;
+}
+
+.new-game {
+    text-align: center;
+}
+
+.tic-tac-toe {
+    display: grid;
+    --tileWidth: 10vh;
+    grid: repeat(3, var(--tileWidth)) / repeat(3, var(--tileWidth));
+    justify-content: center;
+    align-items: stretch;
+    justify-items: stretch;
+    resize: both;
+}
+
+.player1:hover,
+.player2:hover,
+.new-game:hover {
+    color: blue;
+}
